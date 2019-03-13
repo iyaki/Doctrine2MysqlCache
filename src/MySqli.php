@@ -1,11 +1,11 @@
 <?php
 
-namespace Doctrine\Common\Cache;
+namespace MysqlCache4Doctrine2;
 
 /**
  * MysqlCache cache provider.
  */
-class MySqlCache extends CacheProvider
+class MySqliCache extends \Doctrine\Common\Cache\CacheProvider
 {
     /**
      * The ID field will store the cache key.
@@ -23,7 +23,7 @@ class MySqlCache extends CacheProvider
      */
     public const EXPIRATION_FIELD = 'e';
 
-    /** @var mysql */
+    /** @var mysqli */
     private $mysql;
 
     /** @var string */
@@ -33,15 +33,13 @@ class MySqlCache extends CacheProvider
      * Calling the constructor will ensure that the database file and table
      * exist and will create both if they don't.
      *
+     * @param mysqli $driver
      * @param string $table
      */
-    public function __construct($driver, $table)
+    public function __construct(\mysqli $driver, string $table)
     {
-        if (!($driver instanceof \mysqli) && !($driver instanceof \PDO)) {
-            throw new Exception('Argument 1 passed to Doctrine\Common\Cache\MysqlCache::__construct must be an instance of mysqli or PDO', 1);  
-        }
         $this->mysql = $driver;
-        $this->table  = (string) $table;
+        $this->table = $table;
 
         $this->ensureTableExists();
     }
@@ -99,18 +97,12 @@ class MySqlCache extends CacheProvider
             : null
         );
         $serializedData = serialize($data);
-        if ($this->mysql instanceof \PDO) {
-            $statement->bindValue(1, $id, \PDO::PARAM_STR);
-            $statement->bindValue(2, $serializedData, \PDO::PARAM_STR);
-            $statement->bindValue(3, $lifeTime, \PDO::PARAM_INT);
-        } else {
-            $statement->bind_param(
-                'ssi',
-                $id,
-                $serializedData,
-                $lifeTime
-            );
-        }
+        $statement->bind_param(
+            'ssi',
+            $id,
+            $serializedData,
+            $lifeTime
+        );
 
         return $statement->execute();
     }
@@ -128,11 +120,7 @@ class MySqlCache extends CacheProvider
             $idField
         ));
 
-        if ($this->mysql instanceof \PDO) {
-            $statement->bindValue(1, $id, \PDO::PARAM_STR);
-        } else {
-            $statement->bind_param('s', $id);
-        }
+        $statement->bind_param('s', $id);
 
         return $statement->execute();
     }
@@ -176,22 +164,13 @@ class MySqlCache extends CacheProvider
             $idField
         ));
 
-        if ($this->mysql instanceof \PDO) {
-            $statement->bindValue(1, $id, \PDO::PARAM_STR);
-        } else {
-            $statement->bind_param('s', $id);
-        }
+        $statement->bind_param('s', $id);
 
-        if ($this->mysql instanceof \PDO) {
-            $item = $statement->execute()->fetch();
-        } else {
-            // $item = null;
-            $statement->execute();
-            $result = $statement->get_result();
-            $item = $result->fetch_assoc();
-        }
+        $statement->execute();
+        $result = $statement->get_result();
+        $item = $result->fetch_assoc();
 
-        if ($item === false || $item === null) {
+        if ($item === null) {
             return null;
         }
 
@@ -226,4 +205,3 @@ class MySqlCache extends CacheProvider
             $item[self::EXPIRATION_FIELD] < time();
     }
 }
- 
