@@ -1,0 +1,22 @@
+{
+    "name": "iyaki/mysql-cache4doctrine2",
+    "description": "Mysql Cache Driver for the Doctrine 2 project",
+    "type": "library",
+    "require": {
+        "php": "~7.1",
+        "doctrine/cache": "~1.6"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "iyaki",
+            "email": "ivanyaki96@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "MysqlCache4Doctrine2\\": "src"
+        }
+    }
+}
