@@ -48,7 +48,7 @@ class MySqliCache extends \Doctrine\Common\Cache\CacheProvider
     {
         $this->mysql->query(
             sprintf(
-                'CREATE TABLE IF NOT EXISTS %s(%s VARCHAR(500) PRIMARY KEY NOT NULL, %s TEXT, %s INTEGER)',
+                'CREATE TABLE IF NOT EXISTS %s(%s VARCHAR(500) PRIMARY KEY NOT NULL, %s LONGTEXT, %s INTEGER)',
                 $this->table,
                 static::ID_FIELD,
                 static::DATA_FIELD,
